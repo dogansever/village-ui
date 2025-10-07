@@ -1,0 +1,121 @@
+.game-container {
+  min-height: 100vh;
+  padding: 20px;
+  background: linear-gradient(to bottom, #111827, #1f2937);
+  color: white;
+  font-family: Arial, sans-serif;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+h2 {
+  font-size: 24px;
+  margin-bottom: 20px;
+}
+
+.error {
+  background-color: #ef4444;
+  padding: 8px;
+  border-radius: 6px;
+  margin-bottom: 15px;
+  width: 100%;
+  max-width: 600px;
+  text-align: center;
+}
+
+.players-section,
+.messages-section,
+.actions-section {
+  width: 100%;
+  max-width: 600px;
+  margin-bottom: 20px;
+}
+
+.players-section ul {
+  list-style: none;
+  padding: 0;
+}
+
+.players-section li {
+  padding: 8px 12px;
+  background-color: #2d3748;
+  border-radius: 8px;
+  margin-bottom: 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.messages-section .messages {
+  max-height: 250px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.messages-section .message {
+  padding: 8px 12px;
+  background-color: #374151;
+  border-radius: 8px;
+  word-wrap: break-word;
+}
+
+.actions-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.actions-buttons button {
+  flex: 1 1 30%;
+  padding: 10px;
+  border-radius: 8px;
+  border: none;
+  background-color: #4ade80;
+  color: #111827;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.actions-buttons button:hover {
+  background-color: #22c55e;
+}
+
+/* Responsive */
+@media (max-width: 500px) {
+  .game-container h2 {
+    font-size: 20px;
+  }
+
+  .actions-buttons button {
+    flex: 1 1 100%;
+  }
+
+  .messages-section .messages {
+    max-height: 150px;
+  }
+
+  .phase-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+
+  .phase-buttons button {
+    flex: 1 1 45%;
+    padding: 10px;
+    border-radius: 8px;
+    border: none;
+    font-weight: bold;
+    cursor: pointer;
+    background-color: #3b82f6;
+    color: white;
+  }
+
+  .phase-buttons button:hover {
+    background-color: #2563eb;
+  }
+}
