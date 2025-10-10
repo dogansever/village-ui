@@ -11,6 +11,18 @@ export default function LobbyPage() {
   const [joinKeys, setJoinKeys] = useState({}); // roomId -> key mapping
   const BASE_URL = process.env.REACT_APP_API_URL;
 
+  const phaseTranslations = {
+    WAITING: "Bekliyor",
+    NIGHT: "Gece",
+    DAY: "Gündüz",
+    VOTING: "Oylama",
+    ENDED: "Bitti",
+  };
+
+  const getPhaseName = (phase) => {
+    return phaseTranslations[phase] || phase || "Bilinmiyor";
+  };
+
   const fetchRooms = useCallback(async () => {
     try {
       const res = await fetch(`${BASE_URL}/api/rooms`, {
@@ -48,8 +60,8 @@ export default function LobbyPage() {
       });
       if (res.ok) fetchRooms(); // odaları yeniden yükle
       else {
-        const text = await res.text();
-        alert(text || "Oda silinemedi.");
+        const error = await res.json();
+        alert(error.message || "Oda silinemedi.");
       }
     } catch (err) {
       alert("Oda silinirken hata:", err);
@@ -113,19 +125,29 @@ export default function LobbyPage() {
                 <p className="room-info">
                   {room.players?.length || 0} / {room.maxPlayers || 10} oyuncu
                 </p>
+                <p className="room-owner">
+                  Oda Sahibi: {room.owner?.username || "Bilinmiyor"}
+                </p>
+                <p className="room-phase">
+                  Faz: {getPhaseName(room.currentPhase)}
+                </p>
               </div>
-              {room.joinKey && (
-                <input
-                  placeholder="Oda anahtarını girin"
-                  value={joinKeys[room.id] || ""}
-                  onChange={(e) =>
-                    setJoinKeys({ ...joinKeys, [room.id]: e.target.value })
-                  }
-                  style={{ marginTop: "5px", marginRight: "5px" }}
-                />
-              )}
-              <button onClick={() => handleJoin(room.id)}>Katıl</button>
-              <button onClick={() => handleDeleteRoom(room.id)}>Sil</button>
+              <div className="room-actions">
+                {room.joinKey && (
+                  <input
+                    placeholder="Oda anahtarını girin"
+                    value={joinKeys[room.id] || ""}
+                    onChange={(e) =>
+                      setJoinKeys({ ...joinKeys, [room.id]: e.target.value })
+                    }
+                    className="join-key-input"
+                  />
+                )}
+                <div className="room-buttons">
+                  <button onClick={() => handleJoin(room.id)}>Katıl</button>
+                  <button onClick={() => handleDeleteRoom(room.id)}>Sil</button>
+                </div>
+              </div>
             </div>
           ))
         )}

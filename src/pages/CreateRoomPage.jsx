@@ -39,8 +39,8 @@ export default function CreateRoomPage() {
         alert(`Oda oluşturuldu! Oda Anahtarı: ${room.joinKey || "Yok"}`);
         navigate(`/game/${room.id}`);
       } else {
-        const text = await res.text();
-        setError(text || "Oda oluşturulamadı.");
+        const error = await res.json();
+        setError(error.message || "Oda oluşturulamadı.");
       }
     } catch (err) {
       setError("Sunucuya bağlanılamadı.");
@@ -61,11 +61,12 @@ export default function CreateRoomPage() {
             required
           />
 
+          <label>Oda Anahtarı (isteğe bağlı)</label>
           <input
+            type="text"
             placeholder="Oda Anahtarı (isteğe bağlı)"
             value={joinKey}
             onChange={(e) => setJoinKey(e.target.value)}
-            style={{ display: "block", margin: "10px 0", width: "100%" }}
           />
 
           <label>Maksimum Oyuncu Sayısı</label>

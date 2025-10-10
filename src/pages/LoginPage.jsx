@@ -45,6 +45,7 @@ export default function LoginPage() {
             type="text"
             value={username}
             onChange={(e) => setUsername(e.target.value)}
+            placeholder="Kullanıcı adınızı girin örn: MustafaBurak"
             required
           />
 
@@ -53,6 +54,7 @@ export default function LoginPage() {
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
+            placeholder="Şifrenizi girin örn: 112233"
             required
           />
 

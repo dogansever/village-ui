@@ -119,3 +119,78 @@ h2 {
     background-color: #2563eb;
   }
 }
+.messages-section {
+  width: 100%;
+  max-width: 600px;
+  margin: 20px 0;
+}
+
+.messages-section h3 {
+  color: #2196f3;
+  border-bottom: 2px solid #2196f3;
+  padding-bottom: 5px;
+  margin-bottom: 15px;
+}
+
+.public-messages,
+.private-messages {
+  margin-bottom: 20px;
+  background-color: transparent;
+  border-radius: 8px;
+  padding: 15px;
+}
+
+.public-messages h4 {
+  color: #4caf50;
+  margin: 0 0 10px 0;
+  font-size: 16px;
+}
+
+.private-messages h4 {
+  color: #ff9800;
+  margin: 0 0 10px 0;
+  font-size: 16px;
+}
+
+.message-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  overflow-y: auto;
+}
+
+.public-message {
+  background-color: transparent;
+  border-left: 4px solid #4caf50;
+  padding: 8px 12px;
+  margin: 5px 0;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.private-message {
+  background-color: transparent;
+  border-left: 4px solid #ff9800;
+  padding: 8px 12px;
+  margin: 5px 0;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.no-messages {
+  color: #666;
+  font-style: italic;
+  padding: 10px;
+  text-align: center;
+}
+
+/* Auto-scroll için */
+.message-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.message-list li:last-child {
+  margin-bottom: 0;
+}

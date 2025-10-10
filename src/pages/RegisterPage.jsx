@@ -52,6 +52,7 @@ export default function RegisterPage() {
             type="text"
             value={username}
             onChange={(e) => setUsername(e.target.value)}
+            placeholder="Kullanıcı adınızı girin örn: MustafaBurak"
             required
           />
 
@@ -60,6 +61,7 @@ export default function RegisterPage() {
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
+            placeholder="Email adresinizi girin örn: mustafa@example.com"
             required
           />
 
@@ -68,6 +70,7 @@ export default function RegisterPage() {
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
+            placeholder="Şifrenizi girin örn: 112233"
             required
           />
 
@@ -76,6 +79,7 @@ export default function RegisterPage() {
             type="password"
             value={confirm}
             onChange={(e) => setConfirm(e.target.value)}
+            placeholder="Şifrenizi tekrar girin örn: 112233"
             required
           />
 

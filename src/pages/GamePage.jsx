@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef, useCallback } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import "./GamePage.css";
 
@@ -13,12 +13,7 @@ export default function GamePage() {
   const token = localStorage.getItem("token");
   const [player, setPlayer] = useState({});
   const [selectedTarget, setSelectedTarget] = useState(null);
-  const messagesEndRef = useRef(null);
   const BASE_URL = process.env.REACT_APP_API_URL;
-
-  useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [room?.messages]);
 
   const fetchRoom = useCallback(async () => {
     try {
@@ -134,7 +129,7 @@ export default function GamePage() {
         }
       );
       if (!res.ok) {
-        alert("Oyuncu atılamadı");
+        alert(`Oyuncu atılamadı: ${(await res.json()).message}`);
       } else {
         alert(`${username} odadan atıldı.`);
         fetchRoom(); // listeyi güncelle
@@ -146,9 +141,20 @@ export default function GamePage() {
 
   if (loading) return <div className="game-container">Yükleniyor...</div>;
 
+  const roleTranslations = {
+    VAMPIRE: "Vampir",
+    VILLAGER: "Köylü",
+    SEER: "Kahin",
+    WITCH: "Cadı",
+    HUNTER: "Avcı",
+  };
+
+  const getRoleName = (role) => {
+    return roleTranslations[role] || role;
+  };
+
   return (
     <div className="game-container">
-      <div ref={messagesEndRef} />
       <h2>Oda: {room.name}</h2>
       {error && <div className="error">{error}</div>}
 
@@ -183,32 +189,66 @@ export default function GamePage() {
                 p.alive && p?.id !== player?.id && setSelectedTarget(p)
               }
               style={{
-                cursor: p.alive ? "pointer" : "not-allowed",
+                cursor:
+                  p.alive && p?.id !== player?.id ? "pointer" : "not-allowed",
                 color: p.alive ? (p.voted ? "green" : "black") : "gray",
                 fontWeight: selectedTarget?.id === p?.id ? "bold" : "normal",
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                backgroundColor:
+                  p?.id === player?.id
+                    ? "#a4f561ff"
+                    : selectedTarget?.id === p?.id
+                    ? "#f7a308ff"
+                    : "#f5f5f517",
+                border:
+                  p?.id === player?.id
+                    ? "2px solid #2196f3"
+                    : selectedTarget?.id === p?.id
+                    ? "2px solid #ff9800"
+                    : "1px solid #ddd",
+                borderRadius: "4px",
+                padding: "8px",
+                margin: "2px 0",
+                boxShadow:
+                  p?.id === player?.id
+                    ? "0 2px 8px rgba(33, 150, 243, 0.3)"
+                    : selectedTarget?.id === p?.id
+                    ? "0 2px 8px rgba(255, 152, 0, 0.3)"
+                    : "none",
+                transition: "all 0.2s ease",
               }}
             >
-              {p.user.username}{" "}
-              {(!p.alive ||
-                player?.id === p?.id ||
-                room.currentPhase === "ENDED") &&
-                p.role}{" "}
-              - {p.alive ? (p.voted ? " Oyladı" : " Oylamadı") : "Ölü"}
-              {player?.user.id === room.owner.id && p?.id !== player?.id && (
-                <button
-                  onClick={() => handleKickPlayer(p.user.username)}
-                  style={{
-                    backgroundColor: "#e74c3c",
-                    color: "white",
-                    border: "none",
-                    padding: "4px 8px",
-                    borderRadius: "4px",
-                    cursor: "pointer",
-                  }}
-                >
-                  Çıkar
-                </button>
-              )}
+              <span>
+                {p.user.username.toUpperCase()}
+                {(!p.alive ||
+                  player?.id === p?.id ||
+                  room.currentPhase === "ENDED") &&
+                  " - " + getRoleName(p.role)}{" "}
+              </span>
+              <div
+                style={{ display: "flex", alignItems: "center", gap: "8px" }}
+              >
+                <span>
+                  {p.alive ? (p.voted ? "Oyladı" : "Oylamadı") : "Ölü"}
+                </span>
+                {player?.user.id === room.owner.id && p?.id !== player?.id && (
+                  <button
+                    onClick={() => handleKickPlayer(p.user.username)}
+                    style={{
+                      backgroundColor: "#e74c3c",
+                      color: "white",
+                      border: "none",
+                      padding: "4px 8px",
+                      borderRadius: "4px",
+                      cursor: "pointer",
+                    }}
+                  >
+                    Çıkar
+                  </button>
+                )}
+              </div>
             </li>
           ))}
         </ul>
@@ -221,7 +261,7 @@ export default function GamePage() {
           )}
           {room.currentPhase === "NIGHT" &&
             player?.alive &&
-            player?.role === "DOCTOR" && (
+            player?.role === "HUNTER" && (
               <button onClick={() => handleAction("protect")}>Koru</button>
             )}
           {room.currentPhase === "NIGHT" &&
@@ -247,17 +287,43 @@ export default function GamePage() {
         </div>
       </div>
 
-      <div className="actions-section">
-        <ul style={{ display: "flex", flexDirection: "column-reverse" }}>
-          {room.messages.map((msg, idx) => (
-            <li key={idx}>{msg}</li>
-          ))}
-          <li>-</li>
-          {player?.messages.map((msg, idx) => (
-            <li key={idx}>{msg}</li>
-          ))}
-        </ul>
+      <div className="messages-section">
+        <div className="private-messages">
+          <h4>Kişisel Mesajlar</h4>
+          <ul
+            className="message-list"
+            style={{ display: "flex", flexDirection: "column-reverse" }}
+          >
+            {player?.messages && player.messages.length > 0 ? (
+              player.messages.map((msg, idx) => (
+                <li key={idx} className="private-message">
+                  {msg}
+                </li>
+              ))
+            ) : (
+              <li className="no-messages">Henüz kişisel mesaj yok</li>
+            )}
+          </ul>
+        </div>
+        <div className="public-messages">
+          <h4>Genel Mesajlar</h4>
+          <ul
+            className="message-list"
+            style={{ display: "flex", flexDirection: "column-reverse" }}
+          >
+            {room.messages && room.messages.length > 0 ? (
+              room.messages.map((msg, idx) => (
+                <li key={idx} className="public-message">
+                  {msg}
+                </li>
+              ))
+            ) : (
+              <li className="no-messages">Henüz genel mesaj yok</li>
+            )}
+          </ul>
+        </div>
       </div>
+
       <div className="actions-buttons">
         <button onClick={() => navigate("/lobby")}>Odadan Çıkış</button>
       </div>
