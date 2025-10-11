@@ -73,11 +73,10 @@ export default function GamePage() {
   };
 
   const phaseTranslations = {
-    WAITING: "Bekliyor",
-    NIGHT: "Gece",
-    DAY: "Gündüz",
-    VOTING: "Oylama",
-    ENDED: "Bitti",
+    WAITING: "Oyuncular bekleniyor",
+    NIGHT: "Şu an Gece oynanıyor",
+    DAY: "Şu an Gündüz oynanıyor",
+    ENDED: "Yeni bir oyun başlamak üzere",
   };
 
   const getRoleName = (role) => {
