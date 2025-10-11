@@ -9,11 +9,49 @@ export default function GamePage() {
   const [players, setPlayers] = useState([]);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
-  const [isAdmin, setIsAdmin] = useState(false); // admin kontrolü
+  const [isAdmin, setIsAdmin] = useState(false);
   const token = localStorage.getItem("token");
   const [player, setPlayer] = useState({});
   const [selectedTarget, setSelectedTarget] = useState(null);
+  const [notification, setNotification] = useState({
+    message: "",
+    type: "",
+    visible: false,
+  });
   const BASE_URL = process.env.REACT_APP_API_URL;
+
+  // Notification gösterme fonksiyonu
+  const showNotification = (message, type = "info") => {
+    setNotification({ message, type, visible: true });
+    setTimeout(() => {
+      setNotification((prev) => ({ ...prev, visible: false }));
+    }, 4000);
+  };
+
+  // Rol ve faz çevirileri
+  const roleTranslations = {
+    VAMPIRE: "Vampir",
+    VILLAGER: "Köylü",
+    SEER: "Kahin",
+    WITCH: "Cadı",
+    HUNTER: "Avcı",
+  };
+
+  const phaseTranslations = {
+    WAITING: "Bekliyor",
+    NIGHT: "Gece",
+    DAY: "Gündüz",
+    VOTING: "Oylama",
+    ENDED: "Bitti",
+  };
+
+  const getRoleName = (role) => {
+    return roleTranslations[role] || role;
+  };
+
+  const getPhaseName = (phase) => {
+    return phaseTranslations[phase] || phase;
+  };
 
   const fetchRoom = useCallback(async () => {
     try {
@@ -24,7 +62,7 @@ export default function GamePage() {
       const room = await res.json();
       setRoom(room);
       setPlayers(room.players || []);
-      setIsAdmin(room.owner.username === localStorage.getItem("username")); // basit kontrol
+      setIsAdmin(room.owner.username === localStorage.getItem("username"));
       const currentPlayer = room.players.find(
         (p) => p.user.username === localStorage.getItem("username")
       );
@@ -32,7 +70,7 @@ export default function GamePage() {
       if (!currentPlayer) navigate("/lobby");
 
       setPlayer(currentPlayer || {});
-      setError(null);
+      setError("");
     } catch (err) {
       setError(err.message);
     } finally {
@@ -47,14 +85,14 @@ export default function GamePage() {
     }
 
     fetchRoom();
-    const interval = setInterval(fetchRoom, 2000); // her 2 saniye güncelle
+    const interval = setInterval(fetchRoom, 2000);
     return () => clearInterval(interval);
   }, [token, roomId, navigate, fetchRoom]);
 
   const handleAction = async (actionType) => {
     try {
       if (!selectedTarget) {
-        alert("Önce hedef seçin");
+        showNotification("⚠️ Önce hedef seçin", "warning");
         return;
       }
 
@@ -71,8 +109,11 @@ export default function GamePage() {
       });
 
       if (!res.ok) {
-        const text = await res.text();
-        alert(text || "Aksiyon başarısız oldu");
+        const error = await res.json();
+        showNotification(
+          `❌ ${error.message || "Aksiyon başarısız oldu"}`,
+          "error"
+        );
       } else {
         const room = await res.json();
         setRoom(room);
@@ -82,13 +123,13 @@ export default function GamePage() {
         );
         setPlayer(currentPlayer || {});
         setSelectedTarget(null);
+        showNotification("✅ Aksiyon başarıyla gerçekleştirildi", "success");
       }
     } catch {
-      alert("Sunucuya bağlanılamadı.");
+      showNotification("❌ Sunucuya bağlanılamadı", "error");
     }
   };
 
-  // Faz butonları
   const handlePhase = async (phase) => {
     try {
       const res = await fetch(`${BASE_URL}/api/rooms/${roomId}/phase`, {
@@ -102,14 +143,15 @@ export default function GamePage() {
 
       if (!res.ok) {
         const text = await res.text();
-        alert(text || "Faz değişimi başarısız");
+        showNotification(`❌ ${text || "Faz değişimi başarısız"}`, "error");
       } else {
         const room = await res.json();
         setRoom(room);
         setPlayers(room.players || []);
+        showNotification("✅ Faz başarıyla değiştirildi", "success");
       }
     } catch {
-      alert("Sunucuya bağlanılamadı.");
+      showNotification("❌ Sunucuya bağlanılamadı", "error");
     }
   };
 
@@ -129,203 +171,259 @@ export default function GamePage() {
         }
       );
       if (!res.ok) {
-        alert(`Oyuncu atılamadı: ${(await res.json()).message}`);
+        const error = await res.json();
+        showNotification(`❌ Oyuncu atılamadı: ${error.message}`, "error");
       } else {
-        alert(`${username} odadan atıldı.`);
-        fetchRoom(); // listeyi güncelle
+        showNotification(`✅ ${username} odadan atıldı`, "success");
+        fetchRoom();
       }
     } catch (err) {
-      alert("Oyuncu atılamadı: " + err.message);
+      showNotification(`❌ Oyuncu atılamadı: ${err.message}`, "error");
     }
   };
 
-  if (loading) return <div className="game-container">Yükleniyor...</div>;
-
-  const roleTranslations = {
-    VAMPIRE: "Vampir",
-    VILLAGER: "Köylü",
-    SEER: "Kahin",
-    WITCH: "Cadı",
-    HUNTER: "Avcı",
-  };
-
-  const getRoleName = (role) => {
-    return roleTranslations[role] || role;
-  };
+  if (loading) {
+    return (
+      <div className="game-container">
+        <div className="loading-card">
+          <h2>🧛‍♂️ Yükleniyor...</h2>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="game-container">
-      <h2>Oda: {room.name}</h2>
-      {error && <div className="error">{error}</div>}
+      <div className="game-background">
+        <div className="game-card">
+          {/* Notification */}
+          {notification.visible && (
+            <div className={`notification ${notification.type}`}>
+              {notification.message}
+            </div>
+          )}
 
-      {isAdmin && (
-        <div className="phase-buttons">
-          {room.currentPhase === "WAITING" && (
-            <button onClick={() => handlePhase("start-game")}>
-              Oyunu Başlat
+          {/* Header */}
+          <div className="game-header">
+            <div className="header-info">
+              <h1>🧛‍♂️ {room.name}</h1>
+              <h2>⏰ Faz: {getPhaseName(room.currentPhase)}</h2>
+            </div>
+            <button onClick={() => navigate("/lobby")} className="exit-btn">
+              🚪 Odadan Çık
             </button>
-          )}
-          {room.currentPhase === "NIGHT" && (
-            <button onClick={() => handlePhase("end-night")}>Gece Bitir</button>
-          )}
-          {room.currentPhase === "DAY" && (
-            <button onClick={() => handlePhase("end-day")}>Gündüz Bitir</button>
-          )}
-          {room.currentPhase === "ENDED" && (
-            <button onClick={() => handlePhase("start-game")}>
-              Yeni Oyun Başlat
-            </button>
-          )}
-        </div>
-      )}
+          </div>
 
-      <div className="players-section">
-        <h3>Oyuncular</h3>
-        <ul>
-          {players.map((p) => (
-            <li
-              key={p.user.username}
-              onClick={() =>
-                p.alive && p?.id !== player?.id && setSelectedTarget(p)
-              }
-              style={{
-                cursor:
-                  p.alive && p?.id !== player?.id ? "pointer" : "not-allowed",
-                color: p.alive ? (p.voted ? "green" : "black") : "gray",
-                fontWeight: selectedTarget?.id === p?.id ? "bold" : "normal",
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-                backgroundColor:
-                  p?.id === player?.id
-                    ? "#a4f561ff"
-                    : selectedTarget?.id === p?.id
-                    ? "#f7a308ff"
-                    : "#f5f5f517",
-                border:
-                  p?.id === player?.id
-                    ? "2px solid #2196f3"
-                    : selectedTarget?.id === p?.id
-                    ? "2px solid #ff9800"
-                    : "1px solid #ddd",
-                borderRadius: "4px",
-                padding: "8px",
-                margin: "2px 0",
-                boxShadow:
-                  p?.id === player?.id
-                    ? "0 2px 8px rgba(33, 150, 243, 0.3)"
-                    : selectedTarget?.id === p?.id
-                    ? "0 2px 8px rgba(255, 152, 0, 0.3)"
-                    : "none",
-                transition: "all 0.2s ease",
-              }}
-            >
-              <span>
-                {p.user.username.toUpperCase()}
-                {(!p.alive ||
-                  player?.id === p?.id ||
-                  room.currentPhase === "ENDED") &&
-                  " - " + getRoleName(p.role)}{" "}
-              </span>
-              <div
-                style={{ display: "flex", alignItems: "center", gap: "8px" }}
-              >
-                <span>
-                  {p.alive ? (p.voted ? "Oyladı" : "Oylamadı") : "Ölü"}
-                </span>
-                {player?.user.id === room.owner.id && p?.id !== player?.id && (
+          {error && <div className="error-message">❌ {error}</div>}
+
+          {/* Admin Controls */}
+          {isAdmin && (
+            <div className="admin-section">
+              <h3>👑 Yönetici Kontrolleri</h3>
+              <div className="phase-buttons">
+                {room.currentPhase === "WAITING" && (
                   <button
-                    onClick={() => handleKickPlayer(p.user.username)}
-                    style={{
-                      backgroundColor: "#e74c3c",
-                      color: "white",
-                      border: "none",
-                      padding: "4px 8px",
-                      borderRadius: "4px",
-                      cursor: "pointer",
-                    }}
+                    onClick={() => handlePhase("start-game")}
+                    className="phase-btn start-btn"
                   >
-                    Çıkar
+                    🎮 Oyunu Başlat
+                  </button>
+                )}
+                {room.currentPhase === "NIGHT" && (
+                  <button
+                    onClick={() => handlePhase("end-night")}
+                    className="phase-btn night-btn"
+                  >
+                    🌙 Gece Bitir
+                  </button>
+                )}
+                {room.currentPhase === "DAY" && (
+                  <button
+                    onClick={() => handlePhase("end-day")}
+                    className="phase-btn day-btn"
+                  >
+                    ☀️ Gündüz Bitir
+                  </button>
+                )}
+                {room.currentPhase === "ENDED" && (
+                  <button
+                    onClick={() => handlePhase("start-game")}
+                    className="phase-btn restart-btn"
+                  >
+                    🔄 Yeni Oyun
                   </button>
                 )}
               </div>
-            </li>
-          ))}
-        </ul>
-      </div>
-
-      <div className="actions-section">
-        <div className="actions-buttons">
-          {room.currentPhase === "DAY" && player?.alive && (
-            <button onClick={() => handleAction("vote")}>Suçla</button>
+            </div>
           )}
-          {room.currentPhase === "NIGHT" &&
-            player?.alive &&
-            player?.role === "HUNTER" && (
-              <button onClick={() => handleAction("protect")}>Koru</button>
-            )}
-          {room.currentPhase === "NIGHT" &&
-            player?.alive &&
-            player?.role === "SEER" && (
-              <button onClick={() => handleAction("inspect")}>Sorgula</button>
-            )}
-          {room.currentPhase === "NIGHT" &&
-            player?.alive &&
-            player?.role !== "VAMPIRE" && (
-              <button onClick={() => handleAction("watch")}>İzle</button>
-            )}
-          {room.currentPhase === "NIGHT" &&
-            player?.alive &&
-            player?.role === "VAMPIRE" && (
-              <button onClick={() => handleAction("kill")}>Öldür</button>
-            )}
-          {room.currentPhase === "NIGHT" &&
-            player?.alive &&
-            player?.role === "WITCH" && (
-              <button onClick={() => handleAction("poison")}>Zehirle</button>
-            )}
-        </div>
-      </div>
 
-      <div className="messages-section">
-        <div className="private-messages">
-          <h4>Kişisel Mesajlar</h4>
-          <ul
-            className="message-list"
-            style={{ display: "flex", flexDirection: "column-reverse" }}
-          >
-            {player?.messages && player.messages.length > 0 ? (
-              player.messages.map((msg, idx) => (
-                <li key={idx} className="private-message">
-                  {msg}
-                </li>
-              ))
-            ) : (
-              <li className="no-messages">Henüz kişisel mesaj yok</li>
-            )}
-          </ul>
-        </div>
-        <div className="public-messages">
-          <h4>Genel Mesajlar</h4>
-          <ul
-            className="message-list"
-            style={{ display: "flex", flexDirection: "column-reverse" }}
-          >
-            {room.messages && room.messages.length > 0 ? (
-              room.messages.map((msg, idx) => (
-                <li key={idx} className="public-message">
-                  {msg}
-                </li>
-              ))
-            ) : (
-              <li className="no-messages">Henüz genel mesaj yok</li>
-            )}
-          </ul>
-        </div>
-      </div>
+          {/* Rest of the component remains the same... */}
+          {/* Players Section */}
+          <div className="players-section">
+            <h3>👥 Oyuncular ({players.length})</h3>
+            <div className="players-list">
+              {players.map((p) => (
+                <div
+                  key={p.user.username}
+                  onClick={() =>
+                    p.alive && p?.id !== player?.id && setSelectedTarget(p)
+                  }
+                  className={`player-card ${
+                    p?.id === player?.id
+                      ? "current-player"
+                      : selectedTarget?.id === p?.id
+                      ? "selected-target"
+                      : !p.alive
+                      ? "dead-player"
+                      : ""
+                  } ${p.alive && p?.id !== player?.id ? "clickable" : ""}`}
+                >
+                  <div className="player-info">
+                    <span className="player-name">
+                      {p.user.username.toUpperCase()}
+                      {(!p.alive ||
+                        player?.id === p?.id ||
+                        room.currentPhase === "ENDED") &&
+                        ` - ${getRoleName(p.role)}`}
+                    </span>
+                    <span className="player-status">
+                      {p.alive
+                        ? p.voted
+                          ? "✅ Oyladı"
+                          : "⏳ Oylamadı"
+                        : "💀 Ölü"}
+                    </span>
+                  </div>
+                  {player?.user.id === room.owner.id &&
+                    p?.id !== player?.id && (
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleKickPlayer(p.user.username);
+                        }}
+                        className="kick-btn"
+                      >
+                        🚫 Çıkar
+                      </button>
+                    )}
+                </div>
+              ))}
+            </div>
+          </div>
 
-      <div className="actions-buttons">
-        <button onClick={() => navigate("/lobby")}>Odadan Çıkış</button>
+          {/* Actions Section */}
+          <div className="actions-section">
+            <h3>⚡ Aksiyonlar</h3>
+            <div className="actions-buttons">
+              {room.currentPhase === "DAY" && player?.alive && (
+                <button
+                  onClick={() => handleAction("vote")}
+                  className="action-btn vote-btn"
+                >
+                  ⚖️ Suçla
+                </button>
+              )}
+              {room.currentPhase === "NIGHT" &&
+                player?.alive &&
+                player?.role === "HUNTER" && (
+                  <button
+                    onClick={() => handleAction("protect")}
+                    className="action-btn protect-btn"
+                  >
+                    🛡️ Koru
+                  </button>
+                )}
+              {room.currentPhase === "NIGHT" &&
+                player?.alive &&
+                player?.role === "SEER" && (
+                  <button
+                    onClick={() => handleAction("inspect")}
+                    className="action-btn inspect-btn"
+                  >
+                    🔍 Sorgula
+                  </button>
+                )}
+              {room.currentPhase === "NIGHT" &&
+                player?.alive &&
+                player?.role !== "VAMPIRE" && (
+                  <button
+                    onClick={() => handleAction("watch")}
+                    className="action-btn watch-btn"
+                  >
+                    👁️ İzle
+                  </button>
+                )}
+              {room.currentPhase === "NIGHT" &&
+                player?.alive &&
+                player?.role === "VAMPIRE" && (
+                  <button
+                    onClick={() => handleAction("kill")}
+                    className="action-btn kill-btn"
+                  >
+                    🗡️ Öldür
+                  </button>
+                )}
+              {room.currentPhase === "NIGHT" &&
+                player?.alive &&
+                player?.role === "WITCH" && (
+                  <button
+                    onClick={() => handleAction("poison")}
+                    className="action-btn poison-btn"
+                  >
+                    🧪 Zehirle
+                  </button>
+                )}
+            </div>
+            {selectedTarget && (
+              <div className="selected-info">
+                🎯 Seçili Hedef: <strong>{selectedTarget.user.username}</strong>
+              </div>
+            )}
+          </div>
+
+          {/* Messages Section */}
+          <div className="messages-section">
+            <h3>💬 Mesajlar</h3>
+
+            <div className="messages-container">
+              <div className="private-messages">
+                <h4>🔒 Kişisel Mesajlar</h4>
+                <div className="message-list">
+                  {player?.messages && player.messages.length > 0 ? (
+                    player.messages
+                      .slice()
+                      .reverse()
+                      .map((msg, idx) => (
+                        <div key={idx} className="message private-message">
+                          {msg}
+                        </div>
+                      ))
+                  ) : (
+                    <div className="no-messages">Henüz kişisel mesaj yok</div>
+                  )}
+                </div>
+              </div>
+
+              <div className="public-messages">
+                <h4>📢 Genel Mesajlar</h4>
+                <div className="message-list">
+                  {room.messages && room.messages.length > 0 ? (
+                    room.messages
+                      .slice()
+                      .reverse()
+                      .map((msg, idx) => (
+                        <div key={idx} className="message public-message">
+                          {msg}
+                        </div>
+                      ))
+                  ) : (
+                    <div className="no-messages">Henüz genel mesaj yok</div>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );

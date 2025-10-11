@@ -7,6 +7,7 @@ export default function CreateRoomPage() {
   const [roomName, setRoomName] = useState("");
   const [maxPlayers, setMaxPlayers] = useState(10);
   const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
   const token = localStorage.getItem("token");
   const [joinKey, setJoinKey] = useState("");
   const BASE_URL = process.env.REACT_APP_API_URL;
@@ -14,8 +15,9 @@ export default function CreateRoomPage() {
   const handleCreate = async (e) => {
     e.preventDefault();
     setError("");
+    setSuccess("");
 
-    if (!roomName) {
+    if (!roomName.trim()) {
       setError("Oda adı boş olamaz.");
       return;
     }
@@ -28,19 +30,23 @@ export default function CreateRoomPage() {
           Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
-          name: roomName,
+          name: roomName.trim(),
           maxPlayers,
-          joinKey: joinKey || null,
+          joinKey: joinKey.trim() || null,
         }),
       });
 
       if (res.ok) {
         const room = await res.json();
-        alert(`Oda oluşturuldu! Oda Anahtarı: ${room.joinKey || "Yok"}`);
-        navigate(`/game/${room.id}`);
+        setSuccess(
+          `Oda başarıyla oluşturuldu! ${
+            room.joinKey ? `Oda Anahtarı: ${room.joinKey}` : ""
+          }`
+        );
+        setTimeout(() => navigate(`/game/${room.id}`), 2000);
       } else {
-        const error = await res.json();
-        setError(error.message || "Oda oluşturulamadı.");
+        const errorData = await res.json();
+        setError(errorData.message || "Oda oluşturulamadı.");
       }
     } catch (err) {
       setError("Sunucuya bağlanılamadı.");
@@ -49,43 +55,62 @@ export default function CreateRoomPage() {
 
   return (
     <div className="create-room-container">
-      <div className="create-room-card">
-        <h2>Yeni Oda Oluştur</h2>
+      <div className="create-room-background">
+        <div className="create-room-card">
+          <div className="create-room-header">
+            <h1>🧛‍♂️ Vampire Village</h1>
+            <h2>🏰 Yeni Oda Oluştur</h2>
+            <p>Kendi odanızı oluşturun ve arkadaşlarınızı davet edin!</p>
+          </div>
 
-        <form onSubmit={handleCreate}>
-          <label>Oda Adı</label>
-          <input
-            type="text"
-            value={roomName}
-            onChange={(e) => setRoomName(e.target.value)}
-            required
-          />
+          <form onSubmit={handleCreate} className="create-room-form">
+            <div className="input-group">
+              <label>🏠 Oda Adı</label>
+              <input
+                type="text"
+                value={roomName}
+                onChange={(e) => setRoomName(e.target.value)}
+                placeholder="Oda adını girin (örn: Karanlık Köy)"
+                required
+              />
+            </div>
 
-          <label>Oda Anahtarı (isteğe bağlı)</label>
-          <input
-            type="text"
-            placeholder="Oda Anahtarı (isteğe bağlı)"
-            value={joinKey}
-            onChange={(e) => setJoinKey(e.target.value)}
-          />
+            <div className="input-group">
+              <label>🔑 Oda Anahtarı (isteğe bağlı)</label>
+              <input
+                type="text"
+                value={joinKey}
+                onChange={(e) => setJoinKey(e.target.value)}
+                placeholder="Güvenlik için anahtar belirleyin (boş bırakabilirsiniz)"
+              />
+            </div>
 
-          <label>Maksimum Oyuncu Sayısı</label>
-          <input
-            type="number"
-            value={maxPlayers}
-            min={2}
-            max={20}
-            onChange={(e) => setMaxPlayers(Number(e.target.value))}
-          />
+            <div className="input-group">
+              <label>👥 Maksimum Oyuncu Sayısı</label>
+              <input
+                type="number"
+                value={maxPlayers}
+                min={4}
+                max={20}
+                onChange={(e) => setMaxPlayers(Number(e.target.value))}
+                placeholder="4-20 arası oyuncu sayısı"
+              />
+            </div>
 
-          {error && <div className="error">{error}</div>}
+            {error && <div className="error-message">❌ {error}</div>}
+            {success && <div className="success-message">✅ {success}</div>}
 
-          <button type="submit">Oda Oluştur</button>
-        </form>
+            <button type="submit" className="create-btn">
+              🎮 Oda Oluştur
+            </button>
+          </form>
 
-        <button className="back-button" onClick={() => navigate("/lobby")}>
-          Geri
-        </button>
+          <div className="create-room-footer">
+            <button onClick={() => navigate("/lobby")} className="back-btn">
+              ← Lobby'ye Dön
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   );

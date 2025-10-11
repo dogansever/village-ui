@@ -26,8 +26,8 @@ export default function LoginPage() {
         localStorage.setItem("username", username);
         navigate("/lobby");
       } else {
-        const err = await response.text();
-        setError(err || "Giriş başarısız.");
+        const err = await response.json();
+        setError(err.message || "Giriş başarısız.");
       }
     } catch (err) {
       setError("Sunucuya bağlanılamadı.");
@@ -36,36 +36,53 @@ export default function LoginPage() {
 
   return (
     <div className="login-container">
-      <div className="login-card">
-        <h2>Oyun Girişi</h2>
+      <div className="login-background">
+        <div className="login-card">
+          <div className="login-header">
+            <h1>🧛‍♂️ Vampire Village</h1>
+            <h2>Karanlık Dünyaya Giriş</h2>
+            <p>Hesabınızla giriş yapın ve maceraya katılın!</p>
+          </div>
 
-        <form onSubmit={handleLogin}>
-          <label>Kullanıcı Adı</label>
-          <input
-            type="text"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-            placeholder="Kullanıcı adınızı girin örn: MustafaBurak"
-            required
-          />
+          <form onSubmit={handleLogin} className="login-form">
+            <div className="input-group">
+              <label>👤 Kullanıcı Adı</label>
+              <input
+                type="text"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                placeholder="Kullanıcı adınızı girin (örn: MustafaBurak)"
+                required
+              />
+            </div>
 
-          <label>Şifre</label>
-          <input
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            placeholder="Şifrenizi girin örn: 112233"
-            required
-          />
+            <div className="input-group">
+              <label>🔒 Şifre</label>
+              <input
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="Şifrenizi girin (örn: 112233)"
+                required
+              />
+            </div>
 
-          {error && <div className="error">{error}</div>}
+            {error && <div className="error-message">❌ {error}</div>}
 
-          <button type="submit">Giriş Yap</button>
-        </form>
+            <button type="submit" className="login-btn">
+              🎮 Giriş Yap
+            </button>
+          </form>
 
-        <p>
-          Hesabınız yok mu? <Link to="/register">Kayıt Ol</Link>
-        </p>
+          <div className="login-footer">
+            <p>
+              Hesabınız yok mu?
+              <Link to="/register" className="register-link">
+                Kayıt Olun
+              </Link>
+            </p>
+          </div>
+        </div>
       </div>
     </div>
   );

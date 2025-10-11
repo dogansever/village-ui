@@ -33,8 +33,8 @@ export default function RegisterPage() {
         setSuccess("Kayıt başarılı! Giriş sayfasına yönlendiriliyorsunuz...");
         setTimeout(() => navigate("/login"), 1500);
       } else {
-        const text = await res.text();
-        setError(text || "Kayıt başarısız.");
+        const error = await res.json();
+        setError(error.message || "Kayıt başarısız.");
       }
     } catch (err) {
       setError("Sunucuya bağlanılamadı.");
@@ -43,55 +43,76 @@ export default function RegisterPage() {
 
   return (
     <div className="register-container">
-      <div className="register-card">
-        <h2>Yeni Hesap Oluştur</h2>
+      <div className="register-background">
+        <div className="register-card">
+          <div className="register-header">
+            <h1>🧛‍♂️ Vampire Village</h1>
+            <h2>Yeni Hesap Oluştur</h2>
+            <p>Karanlık dünyamıza katılın ve maceraya başlayın!</p>
+          </div>
 
-        <form onSubmit={handleRegister}>
-          <label>Kullanıcı Adı</label>
-          <input
-            type="text"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-            placeholder="Kullanıcı adınızı girin örn: MustafaBurak"
-            required
-          />
+          <form onSubmit={handleRegister} className="register-form">
+            <div className="input-group">
+              <label>👤 Kullanıcı Adı</label>
+              <input
+                type="text"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                placeholder="Kullanıcı adınızı girin (örn: MustafaBurak)"
+                required
+              />
+            </div>
 
-          <label>Email</label>
-          <input
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            placeholder="Email adresinizi girin örn: mustafa@example.com"
-            required
-          />
+            <div className="input-group">
+              <label>📧 Email</label>
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="Email adresinizi girin (örn: mustafa@example.com)"
+                required
+              />
+            </div>
 
-          <label>Şifre</label>
-          <input
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            placeholder="Şifrenizi girin örn: 112233"
-            required
-          />
+            <div className="input-group">
+              <label>🔒 Şifre</label>
+              <input
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="Güçlü bir şifre girin"
+                required
+              />
+            </div>
 
-          <label>Şifre (Tekrar)</label>
-          <input
-            type="password"
-            value={confirm}
-            onChange={(e) => setConfirm(e.target.value)}
-            placeholder="Şifrenizi tekrar girin örn: 112233"
-            required
-          />
+            <div className="input-group">
+              <label>🔒 Şifre Tekrarı</label>
+              <input
+                type="password"
+                value={confirm}
+                onChange={(e) => setConfirm(e.target.value)}
+                placeholder="Şifrenizi tekrar girin"
+                required
+              />
+            </div>
 
-          {error && <div className="error">{error}</div>}
-          {success && <div className="success">{success}</div>}
+            {error && <div className="error-message">❌ {error}</div>}
+            {success && <div className="success-message">✅ {success}</div>}
 
-          <button type="submit">Kayıt Ol</button>
-        </form>
+            <button type="submit" className="register-btn">
+              🎮 Hesap Oluştur
+            </button>
+          </form>
 
-        <p>
-          Zaten hesabınız var mı? <Link to="/login">Giriş Yap</Link>
-        </p>
+          <div className="register-footer">
+            <p>
+              Zaten hesabınız var mı?
+              <Link to="/login" className="login-link">
+                Giriş Yapın
+              </Link>
+            </p>
+          </div>
+        </div>
       </div>
     </div>
   );
