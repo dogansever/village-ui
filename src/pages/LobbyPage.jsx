@@ -60,10 +60,10 @@ export default function LobbyPage() {
       if (res.ok) fetchRooms(); // odaları yeniden yükle
       else {
         const error = await res.json();
-        alert(error.message || "Oda silinemedi.");
+        setError(error.message || "Oda silinemedi.");
       }
     } catch (err) {
-      alert("Oda silinirken hata:", err);
+      setError("Oda silinirken hata oluştu.");
     }
   };
 
@@ -82,11 +82,11 @@ export default function LobbyPage() {
       if (res.ok) {
         navigate(`/game/${roomId}`);
       } else {
-        const text = await res.text();
-        alert(text || "Odaya katılım başarısız oldu.");
+        const error = await res.json();
+        setError(error.message || "Odaya katılım başarısız oldu.");
       }
     } catch (err) {
-      alert("Sunucuya bağlanılamadı.");
+      setError("Sunucuya bağlanılamadı.");
     }
   };
 

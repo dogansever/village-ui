@@ -18,6 +18,8 @@ export default function GamePage() {
     type: "",
     visible: false,
   });
+  const [timer, setTimer] = useState(0);
+  const [timerActive, setTimerActive] = useState(false);
   const BASE_URL = process.env.REACT_APP_API_URL;
 
   // Notification gösterme fonksiyonu
@@ -26,6 +28,39 @@ export default function GamePage() {
     setTimeout(() => {
       setNotification((prev) => ({ ...prev, visible: false }));
     }, 4000);
+  };
+
+  // Timer başlatma fonksiyonu
+  const startTimer = (seconds = 60) => {
+    setTimer(seconds);
+    setTimerActive(true);
+    showNotification(`⏰ ${seconds} saniye düşünme süresi başladı!`, "info");
+  };
+
+  // Timer effect
+  useEffect(() => {
+    let interval;
+    if (timerActive && timer > 0) {
+      interval = setInterval(() => {
+        setTimer((prev) => {
+          if (prev <= 1) {
+            setTimerActive(false);
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+    }
+    return () => clearInterval(interval);
+  }, [timerActive, timer]);
+
+  // Timer formatı (mm:ss)
+  const formatTime = (seconds) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins.toString().padStart(2, "0")}:${secs
+      .toString()
+      .padStart(2, "0")}`;
   };
 
   // Rol ve faz çevirileri
@@ -123,7 +158,6 @@ export default function GamePage() {
         );
         setPlayer(currentPlayer || {});
         setSelectedTarget(null);
-        showNotification("✅ Aksiyon başarıyla gerçekleştirildi", "success");
       }
     } catch {
       showNotification("❌ Sunucuya bağlanılamadı", "error");
@@ -148,7 +182,16 @@ export default function GamePage() {
         const room = await res.json();
         setRoom(room);
         setPlayers(room.players || []);
-        showNotification("✅ Faz başarıyla değiştirildi", "success");
+
+        // Faz değiştiğinde timer başlat
+        if (
+          room.currentPhase !== "ENDED" &&
+          (phase === "start-game" ||
+            phase === "end-night" ||
+            phase === "end-day")
+        ) {
+          startTimer(60); // 60 saniye
+        }
       }
     } catch {
       showNotification("❌ Sunucuya bağlanılamadı", "error");
@@ -172,7 +215,7 @@ export default function GamePage() {
       );
       if (!res.ok) {
         const error = await res.json();
-        showNotification(`❌ Oyuncu atılamadı: ${error.message}`, "error");
+        showNotification(`❌ ${error.message}`, "error");
       } else {
         showNotification(`✅ ${username} odadan atıldı`, "success");
         fetchRoom();
@@ -196,13 +239,6 @@ export default function GamePage() {
     <div className="game-container">
       <div className="game-background">
         <div className="game-card">
-          {/* Notification */}
-          {notification.visible && (
-            <div className={`notification ${notification.type}`}>
-              {notification.message}
-            </div>
-          )}
-
           {/* Header */}
           <div className="game-header">
             <div className="header-info">
@@ -213,8 +249,6 @@ export default function GamePage() {
               🚪 Odadan Çık
             </button>
           </div>
-
-          {error && <div className="error-message">❌ {error}</div>}
 
           {/* Admin Controls */}
           {isAdmin && (
@@ -253,10 +287,55 @@ export default function GamePage() {
                     🔄 Yeni Oyun
                   </button>
                 )}
+
+                {/* Timer kontrol butonları */}
+                <div className="timer-controls">
+                  <button
+                    onClick={() => startTimer(60)}
+                    className="timer-btn"
+                    disabled={timerActive}
+                  >
+                    ⏲️ 1dk Timer
+                  </button>
+                  <button
+                    onClick={() => startTimer(30)}
+                    className="timer-btn"
+                    disabled={timerActive}
+                  >
+                    ⏲️ 30sn Timer
+                  </button>
+                  <button
+                    onClick={() => {
+                      setTimerActive(false);
+                      setTimer(0);
+                    }}
+                    className="timer-btn stop-timer"
+                    disabled={!timerActive}
+                  >
+                    ⏹️ Durdur
+                  </button>
+                </div>
               </div>
             </div>
           )}
 
+          {/* Notification */}
+          {notification.visible && (
+            <div className={`notification ${notification.type}`}>
+              {notification.message}
+            </div>
+          )}
+
+          {/* Timer */}
+          {timerActive && (
+            <div
+              className={`timer-display ${timer <= 10 ? "timer-warning" : ""}`}
+            >
+              ⏰ Kalan Süre: {formatTime(timer)}
+            </div>
+          )}
+
+          {error && <div className="error-message">❌ {error}</div>}
           {/* Rest of the component remains the same... */}
           {/* Players Section */}
           <div className="players-section">
@@ -335,6 +414,16 @@ export default function GamePage() {
                 )}
               {room.currentPhase === "NIGHT" &&
                 player?.alive &&
+                player?.role === "HUNTER" && (
+                  <button
+                    onClick={() => handleAction("hunt")}
+                    className="action-btn protect-btn"
+                  >
+                    🗡️ Avla
+                  </button>
+                )}
+              {room.currentPhase === "NIGHT" &&
+                player?.alive &&
                 player?.role === "SEER" && (
                   <button
                     onClick={() => handleAction("inspect")}
@@ -345,6 +434,7 @@ export default function GamePage() {
                 )}
               {room.currentPhase === "NIGHT" &&
                 player?.alive &&
+                player?.role !== "HUNTER" &&
                 player?.role !== "VAMPIRE" && (
                   <button
                     onClick={() => handleAction("watch")}
