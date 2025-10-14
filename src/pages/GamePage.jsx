@@ -359,6 +359,22 @@ export default function GamePage() {
                   <div className="player-info">
                     <span className="player-name">
                       {p.user.username.toUpperCase()}
+                      {p.user.wins > 0 && (
+                        <span className="wins-stars">
+                          {" "}
+                          {Array.from(
+                            { length: Math.min(p.user.wins, 5) },
+                            (_, i) => (
+                              <span key={i} className="star">
+                                ⭐
+                              </span>
+                            )
+                          )}
+                          {p.user.wins > 5 && (
+                            <span className="wins-count">({p.user.wins})</span>
+                          )}
+                        </span>
+                      )}
                       {(!p.alive ||
                         player?.id === p?.id ||
                         room.currentPhase === "ENDED") &&
@@ -478,16 +494,33 @@ export default function GamePage() {
               <div className="private-messages">
                 <h4>🔒 Kişisel Mesajlar</h4>
                 <div className="message-list">
-                  {player?.messages && player.messages.length > 0 ? (
-                    player.messages
-                      .slice()
-                      .reverse()
-                      .map((msg, idx) => (
-                        <div key={idx} className="message private-message">
-                          {msg}
-                        </div>
-                      ))
-                  ) : (
+                  {player?.messages?.length > 0
+                    ? player.messages
+                        .slice()
+                        .reverse()
+                        .map((msg, idx) => (
+                          <div key={idx} className="message private-message">
+                            {msg}
+                          </div>
+                        ))
+                    : null}
+
+                  {player?.messagesOld?.length > 0
+                    ? player.messagesOld
+                        .slice()
+                        .reverse()
+                        .map((msg, idx) => (
+                          <div
+                            key={idx}
+                            className="message private-message-old"
+                          >
+                            {msg}
+                          </div>
+                        ))
+                    : null}
+
+                  {player?.messages?.length > 0 ||
+                  player?.messagesOld?.length > 0 ? null : (
                     <div className="no-messages">Henüz kişisel mesaj yok</div>
                   )}
                 </div>
@@ -496,7 +529,7 @@ export default function GamePage() {
               <div className="public-messages">
                 <h4>📢 Genel Mesajlar</h4>
                 <div className="message-list">
-                  {room.messages && room.messages.length > 0 ? (
+                  {room.messages?.length > 0 &&
                     room.messages
                       .slice()
                       .reverse()
@@ -504,8 +537,18 @@ export default function GamePage() {
                         <div key={idx} className="message public-message">
                           {msg}
                         </div>
-                      ))
-                  ) : (
+                      ))}
+                  {room.messagesOld?.length > 0 &&
+                    room.messagesOld
+                      .slice()
+                      .reverse()
+                      .map((msg, idx) => (
+                        <div key={idx} className="message public-message-old">
+                          {msg}
+                        </div>
+                      ))}
+                  {room.messages?.length !== 0 ||
+                  room.messagesOld?.length !== 0 ? null : (
                     <div className="no-messages">Henüz genel mesaj yok</div>
                   )}
                 </div>
