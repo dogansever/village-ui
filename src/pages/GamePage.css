@@ -699,3 +699,99 @@
 }
 
 /* ...existing code... */
+/* ...existing code... */
+
+.evils-bats {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  margin-left: 4px;
+}
+
+.bat {
+  font-size: 0.8em;
+  animation: flutter 1.5s ease-in-out infinite;
+  text-shadow: 0 0 3px rgba(128, 0, 128, 0.5);
+  filter: hue-rotate(270deg);
+}
+
+.bat:nth-child(2) {
+  animation-delay: 0.3s;
+}
+.bat:nth-child(3) {
+  animation-delay: 0.6s;
+}
+
+.evils-count {
+  font-size: 0.75em;
+  color: #8b0000;
+  font-weight: bold;
+  margin-left: 4px;
+  text-shadow: 0 0 3px rgba(139, 0, 0, 0.5);
+}
+
+@keyframes flutter {
+  0%,
+  100% {
+    transform: scale(1) rotate(0deg);
+    opacity: 0.8;
+  }
+  50% {
+    transform: scale(1.1) rotate(-5deg);
+    opacity: 1;
+  }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .bat {
+    font-size: 0.7em;
+  }
+
+  .evils-count {
+    font-size: 0.7em;
+  }
+}
+
+/* ...existing code... */
+/* ...existing code... */
+
+.role-display {
+  font-weight: bold;
+  text-shadow: 0 0 3px rgba(0, 0, 0, 0.3);
+  padding: 2px 6px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.85em;
+  backdrop-filter: blur(5px);
+  animation: roleGlow 2s ease-in-out infinite alternate;
+}
+
+.role-separator {
+  color: #7f8c8d;
+  margin: 0 4px;
+}
+
+@keyframes roleGlow {
+  0% {
+    box-shadow: 0 0 5px rgba(255, 255, 255, 0.3);
+  }
+  100% {
+    box-shadow: 0 0 15px rgba(255, 255, 255, 0.6);
+  }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .role-display {
+    font-size: 0.8em;
+    padding: 1px 4px;
+    gap: 2px;
+  }
+}
+
+/* ...existing code... */

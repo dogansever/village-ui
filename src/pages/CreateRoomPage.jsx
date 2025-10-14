@@ -90,10 +90,10 @@ export default function CreateRoomPage() {
               <input
                 type="number"
                 value={maxPlayers}
-                min={4}
+                min={5}
                 max={20}
                 onChange={(e) => setMaxPlayers(Number(e.target.value))}
-                placeholder="4-20 arası oyuncu sayısı"
+                placeholder="5-20 arası oyuncu sayısı"
               />
             </div>
 

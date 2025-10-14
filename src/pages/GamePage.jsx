@@ -65,11 +65,11 @@ export default function GamePage() {
 
   // Rol ve faz çevirileri
   const roleTranslations = {
-    VAMPIRE: "Vampir",
-    VILLAGER: "Köylü",
-    SEER: "Kahin",
-    WITCH: "Cadı",
-    HUNTER: "Avcı",
+    VAMPIRE: { name: "Vampir", icon: "🧛‍♂️", color: "#8b0000" },
+    VILLAGER: { name: "Köylü", icon: "👨‍🌾", color: "#228b22" },
+    SEER: { name: "Kahin", icon: "🔮", color: "#4169e1" },
+    WITCH: { name: "Cadı", icon: "🧙‍♀️", color: "#800080" },
+    HUNTER: { name: "Avcı", icon: "🏹", color: "#b8860b" },
   };
 
   const phaseTranslations = {
@@ -80,7 +80,15 @@ export default function GamePage() {
   };
 
   const getRoleName = (role) => {
-    return roleTranslations[role] || role;
+    const roleData = roleTranslations[role];
+    if (roleData) {
+      return (
+        <span className="role-display" style={{ color: roleData.color }}>
+          {roleData.icon} {roleData.name}
+        </span>
+      );
+    }
+    return role;
   };
 
   const getPhaseName = (phase) => {
@@ -375,10 +383,33 @@ export default function GamePage() {
                           )}
                         </span>
                       )}
+                      {p.user.evils > 0 && (
+                        <span className="evils-bats">
+                          {" "}
+                          {Array.from(
+                            { length: Math.min(p.user.evils, 3) },
+                            (_, i) => (
+                              <span key={i} className="bat">
+                                🦇
+                              </span>
+                            )
+                          )}
+                          {p.user.evils > 3 && (
+                            <span className="evils-count">
+                              ({p.user.evils})
+                            </span>
+                          )}
+                        </span>
+                      )}
+                      {(!p.alive ||
+                        player?.id === p?.id ||
+                        room.currentPhase === "ENDED") && (
+                        <span className="role-separator"> - </span>
+                      )}
                       {(!p.alive ||
                         player?.id === p?.id ||
                         room.currentPhase === "ENDED") &&
-                        ` - ${getRoleName(p.role)}`}
+                        getRoleName(p.role)}
                     </span>
                     <span className="player-status">
                       {p.alive
