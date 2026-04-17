@@ -5,9 +5,7 @@ import "./RegisterPage.css";
 export default function RegisterPage() {
   const navigate = useNavigate();
   const [username, setUsername] = useState("");
-  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [confirm, setConfirm] = useState("");
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const BASE_URL = process.env.REACT_APP_API_URL;
@@ -17,16 +15,11 @@ export default function RegisterPage() {
     setError("");
     setSuccess("");
 
-    if (password !== confirm) {
-      setError("Şifreler eşleşmiyor.");
-      return;
-    }
-
     try {
       const res = await fetch(`${BASE_URL}/api/auth/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username, email, password }),
+        body: JSON.stringify({ username, password }),
       });
 
       if (res.ok) {
@@ -64,34 +57,12 @@ export default function RegisterPage() {
             </div>
 
             <div className="input-group">
-              <label>📧 Email</label>
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="Email adresinizi girin (örn: mustafa@example.com)"
-                required
-              />
-            </div>
-
-            <div className="input-group">
               <label>🔒 Şifre</label>
               <input
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                placeholder="Güçlü bir şifre girin"
-                required
-              />
-            </div>
-
-            <div className="input-group">
-              <label>🔒 Şifre Tekrarı</label>
-              <input
-                type="password"
-                value={confirm}
-                onChange={(e) => setConfirm(e.target.value)}
-                placeholder="Şifrenizi tekrar girin"
+                placeholder="🔒 Şifre girin"
                 required
               />
             </div>

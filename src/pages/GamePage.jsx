@@ -294,6 +294,14 @@ export default function GamePage() {
                     🔄 Yeni Oyun
                   </button>
                 )}
+                {room.currentPhase !== "ENDED" && (
+                  <button
+                    onClick={() => handlePhase("end-game")}
+                    className="phase-btn end-btn"
+                  >
+                    🛑 Oyunu Bitir
+                  </button>
+                )}
 
                 {/* Timer kontrol butonları */}
                 <div className="timer-controls">

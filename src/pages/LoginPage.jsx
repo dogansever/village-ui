@@ -56,32 +56,12 @@ export default function LoginPage() {
               />
             </div>
 
-            <div className="input-group">
-              <label>🔒 Şifre</label>
-              <input
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="Şifrenizi girin (örn: 112233)"
-                required
-              />
-            </div>
-
             {error && <div className="error-message">❌ {error}</div>}
 
             <button type="submit" className="login-btn">
               🎮 Giriş Yap
             </button>
           </form>
-
-          <div className="login-footer">
-            <p>
-              Hesabınız yok mu?
-              <Link to="/register" className="register-link">
-                Kayıt Olun
-              </Link>
-            </p>
-          </div>
         </div>
       </div>
     </div>
