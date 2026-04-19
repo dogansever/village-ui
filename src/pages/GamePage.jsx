@@ -264,7 +264,11 @@ export default function GamePage() {
               <div className="phase-buttons">
                 {room.currentPhase === "WAITING" && (
                   <button
-                    onClick={() => handlePhase("start-game")}
+                    onClick={() => {
+                      if (window.confirm("Yeni oyun başlatmak istediğinize emin misiniz?")) {
+                        handlePhase("start-game");
+                      }
+                    }}
                     className="phase-btn start-btn"
                   >
                     🎮 Oyunu Başlat
@@ -272,23 +276,35 @@ export default function GamePage() {
                 )}
                 {room.currentPhase === "NIGHT" && (
                   <button
-                    onClick={() => handlePhase("end-night")}
+                    onClick={() => {
+                      if (window.confirm("Geceyi bitirmek istediğinize emin misiniz?")) {
+                        handlePhase("end-night");
+                      }
+                    }}
                     className="phase-btn night-btn"
                   >
-                    🌙 Gece Bitir
+                    🌙 Geceyi Bitir
                   </button>
                 )}
                 {room.currentPhase === "DAY" && (
                   <button
-                    onClick={() => handlePhase("end-day")}
+                    onClick={() => {
+                      if (window.confirm("Gündüzü bitirmek istediğinize emin misiniz?")) {
+                        handlePhase("end-day");
+                      }
+                    }}
                     className="phase-btn day-btn"
                   >
-                    ☀️ Gündüz Bitir
+                    ☀️ Gündüzü Bitir
                   </button>
                 )}
                 {room.currentPhase === "ENDED" && (
                   <button
-                    onClick={() => handlePhase("start-game")}
+                    onClick={() => {
+                      if (window.confirm("Yeni oyun başlatmak istediğinize emin misiniz?")) {
+                        handlePhase("start-game");
+                      }
+                    }}
                     className="phase-btn restart-btn"
                   >
                     🔄 Yeni Oyun
@@ -296,7 +312,11 @@ export default function GamePage() {
                 )}
                 {room.currentPhase !== "ENDED" && (
                   <button
-                    onClick={() => handlePhase("end-game")}
+                    onClick={() => {
+                      if (window.confirm("Oyunu bitirmek istediğinize emin misiniz?")) {
+                        handlePhase("end-game");
+                      }
+                    }}
                     className="phase-btn end-btn"
                   >
                     🛑 Oyunu Bitir
