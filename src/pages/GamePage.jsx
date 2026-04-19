@@ -3,6 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import "./GamePage.css";
 
 export default function GamePage() {
+  const [actionDisabled, setActionDisabled] = useState(false);
   const { roomId } = useParams();
   const navigate = useNavigate();
   const [room, setRoom] = useState({});
@@ -132,9 +133,13 @@ export default function GamePage() {
   }, [token, roomId, navigate, fetchRoom]);
 
   const handleAction = async (actionType) => {
+    if (actionDisabled) return;
+    if (!window.confirm("Bu aksiyonu yapmak istediğinize emin misiniz?")) return;
+    setActionDisabled(true);
     try {
       if (!selectedTarget) {
         showNotification("⚠️ Önce hedef seçin", "warning");
+        setActionDisabled(false);
         return;
       }
 
@@ -202,6 +207,8 @@ export default function GamePage() {
       }
     } catch {
       showNotification("❌ Sunucuya bağlanılamadı", "error");
+    }finally {
+      setActionDisabled(false);
     }
   };
 
@@ -467,11 +474,17 @@ export default function GamePage() {
           {/* Actions Section */}
           <div className="actions-section">
             <h3>⚡ Aksiyonlar</h3>
+            {selectedTarget && (
+              <div className="selected-info">
+                🎯 Seçili Hedef: <strong>{selectedTarget.user.username}</strong>
+              </div>
+            )}
             <div className="actions-buttons">
               {room.currentPhase === "DAY" && player?.alive && (
                 <button
                   onClick={() => handleAction("vote")}
                   className="action-btn vote-btn"
+                  disabled={actionDisabled}
                 >
                   ⚖️ Suçla
                 </button>
@@ -482,6 +495,7 @@ export default function GamePage() {
                   <button
                     onClick={() => handleAction("protect")}
                     className="action-btn protect-btn"
+                    disabled={actionDisabled}
                   >
                     🛡️ Koru
                   </button>
@@ -492,6 +506,7 @@ export default function GamePage() {
                   <button
                     onClick={() => handleAction("hunt")}
                     className="action-btn protect-btn"
+                    disabled={actionDisabled}
                   >
                     🗡️ Avla
                   </button>
@@ -502,6 +517,7 @@ export default function GamePage() {
                   <button
                     onClick={() => handleAction("inspect")}
                     className="action-btn inspect-btn"
+                    disabled={actionDisabled}
                   >
                     🔍 Sorgula
                   </button>
@@ -513,6 +529,7 @@ export default function GamePage() {
                   <button
                     onClick={() => handleAction("watch")}
                     className="action-btn watch-btn"
+                    disabled={actionDisabled}
                   >
                     👁️ İzle
                   </button>
@@ -523,6 +540,7 @@ export default function GamePage() {
                   <button
                     onClick={() => handleAction("kill")}
                     className="action-btn kill-btn"
+                    disabled={actionDisabled}
                   >
                     🗡️ Öldür
                   </button>
@@ -533,16 +551,12 @@ export default function GamePage() {
                   <button
                     onClick={() => handleAction("poison")}
                     className="action-btn poison-btn"
+                    disabled={actionDisabled}
                   >
                     🧪 Zehirle
                   </button>
                 )}
             </div>
-            {selectedTarget && (
-              <div className="selected-info">
-                🎯 Seçili Hedef: <strong>{selectedTarget.user.username}</strong>
-              </div>
-            )}
           </div>
 
           {/* Messages Section */}

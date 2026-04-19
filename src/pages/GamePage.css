@@ -285,6 +285,13 @@
   min-width: 0;
 }
 
+.action-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
+  filter: grayscale(60%);
+}
+
 .vote-btn {
   background: linear-gradient(135deg, #ffd43b, #fab005);
   box-shadow: 0 4px 15px rgba(250, 176, 5, 0.3);
