@@ -402,40 +402,6 @@ export default function GamePage() {
                   <div className="player-info">
                     <span className="player-name">
                       {p.user.username.toUpperCase()}
-                      {p.user.wins > 0 && (
-                        <span className="wins-stars">
-                          {" "}
-                          {Array.from(
-                            { length: Math.min(p.user.wins, 5) },
-                            (_, i) => (
-                              <span key={i} className="star">
-                                ⭐
-                              </span>
-                            )
-                          )}
-                          {p.user.wins > 5 && (
-                            <span className="wins-count">({p.user.wins})</span>
-                          )}
-                        </span>
-                      )}
-                      {p.user.evils > 0 && (
-                        <span className="evils-bats">
-                          {" "}
-                          {Array.from(
-                            { length: Math.min(p.user.evils, 3) },
-                            (_, i) => (
-                              <span key={i} className="bat">
-                                🦇
-                              </span>
-                            )
-                          )}
-                          {p.user.evils > 3 && (
-                            <span className="evils-count">
-                              ({p.user.evils})
-                            </span>
-                          )}
-                        </span>
-                      )}
                       {(!p.alive ||
                         player?.id === p?.id ||
                         room.currentPhase === "ENDED") && (
@@ -451,7 +417,7 @@ export default function GamePage() {
                         ? p.voted
                           ? "✅ Oyladı"
                           : "⏳ Oylamadı"
-                        : "💀 Ölü"}
+                        : "💀 Oyun dışı"}
                     </span>
                   </div>
                   {player?.user.id === room.owner.id &&
