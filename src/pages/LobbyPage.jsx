@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
+import { QRCodeBox } from "../components/QRCode";
 import "./LobbyPage.css";
 
 export default function LobbyPage() {
@@ -128,55 +129,57 @@ export default function LobbyPage() {
               </div>
             ) : (
               <div className="rooms-list">
-                {rooms.map((room) => (
-                  <div key={room.id} className="room-card">
-                    <div className="room-info">
-                      <h3 className="room-name">🏠 {room.name}</h3>
-                      <div className="room-details">
-                        <span className="room-players">
-                          👥 {room.players?.length || 0} /{" "}
-                          {room.maxPlayers || 10} oyuncu
-                        </span>
-                        <span className="room-owner">
-                          👑 {room.owner?.username || "Bilinmiyor"}
-                        </span>
-                        <span className="room-phase">
-                          ⏰ {getPhaseName(room.currentPhase)}
-                        </span>
+                {rooms.map((room) => {
+                  const gameUrl = `${window.location.origin}/game/${room.id}`;
+                  return (
+                    <div key={room.id} className="room-card">
+                      <div className="room-info">
+                        <h3 className="room-name">🏠 {room.name}</h3>
+                        <div className="room-details">
+                          <span className="room-players">
+                            👥 {room.players?.length || 0} / {room.maxPlayers || 10} oyuncu
+                          </span>
+                          <span className="room-owner">
+                            👑 {room.owner?.username || "Bilinmiyor"}
+                          </span>
+                          <span className="room-phase">
+                            ⏰ {getPhaseName(room.currentPhase)}
+                          </span>
+                        </div>
+                      </div>
+                      <QRCodeBox url={gameUrl} />
+                      <div className="room-actions">
+                        {room.joinKey && (
+                          <input
+                            placeholder="🔑 Oda anahtarını girin"
+                            value={joinKeys[room.id] || ""}
+                            onChange={(e) =>
+                              setJoinKeys({
+                                ...joinKeys,
+                                [room.id]: e.target.value,
+                              })
+                            }
+                            className="join-key-input"
+                          />
+                        )}
+                        <div className="room-buttons">
+                          <button
+                            onClick={() => handleJoin(room.id)}
+                            className="join-btn"
+                          >
+                            🚪 Katıl
+                          </button>
+                          <button
+                            onClick={() => handleDeleteRoom(room.id)}
+                            className="delete-btn"
+                          >
+                            🗑️ Sil
+                          </button>
+                        </div>
                       </div>
                     </div>
-
-                    <div className="room-actions">
-                      {room.joinKey && (
-                        <input
-                          placeholder="🔑 Oda anahtarını girin"
-                          value={joinKeys[room.id] || ""}
-                          onChange={(e) =>
-                            setJoinKeys({
-                              ...joinKeys,
-                              [room.id]: e.target.value,
-                            })
-                          }
-                          className="join-key-input"
-                        />
-                      )}
-                      <div className="room-buttons">
-                        <button
-                          onClick={() => handleJoin(room.id)}
-                          className="join-btn"
-                        >
-                          🚪 Katıl
-                        </button>
-                        <button
-                          onClick={() => handleDeleteRoom(room.id)}
-                          className="delete-btn"
-                        >
-                          🗑️ Sil
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             )}
           </div>
