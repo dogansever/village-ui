@@ -130,7 +130,7 @@ export default function LobbyPage() {
             ) : (
               <div className="rooms-list">
                 {rooms.map((room) => {
-                  const gameUrl = `${window.location.origin}/game/${room.id}`;
+                  const gameUrl = `${window.location.origin}`;
                   return (
                     <div key={room.id} className="room-card">
                       <div className="room-info">
