@@ -325,6 +325,7 @@ export default function GamePage() {
                       }
                     }}
                     className="phase-btn end-btn"
+                    style={{ background: '#e53935', color: '#fff', border: '2px solid #b71c1c', fontWeight: 'bold', boxShadow: '0 2px 8px rgba(229,57,53,0.15)' }}
                   >
                     🛑 Oyunu Bitir
                   </button>
