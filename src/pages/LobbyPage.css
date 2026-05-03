@@ -1,3 +1,48 @@
+/* Modal responsive styles */
+.rules-modal {
+  max-width: 95vw;
+  width: 400px;
+  background: #fff;
+  border-radius: 12px;
+  padding: 24px 16px 16px 16px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+  position: relative;
+  overflow-x: auto;
+  word-break: break-word;
+}
+.rules-modal-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.25);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.close-btn {
+  position: absolute;
+  top: 8px;
+  right: 12px;
+  background: none;
+  border: none;
+  font-size: 1.3em;
+  cursor: pointer;
+}
+.rules-btn {
+  background: linear-gradient(135deg, #ffd43b, #fab005);
+  color: #2c3e50;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-size: 15px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-bottom: 4px;
+}
+.rules-btn:hover {
+  background: linear-gradient(135deg, #fab005, #ffd43b);
+}
 * {
   margin: 0;
   padding: 0;
@@ -121,6 +166,8 @@
   border: 2px solid #e8e8e8;
   transition: all 0.3s ease;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  word-break: break-word;
+  overflow-x: auto;
 }
 
 .room-card:hover {
@@ -265,6 +312,30 @@
 
   .room-buttons {
     flex-direction: column;
+  }
+
+  .rules-modal {
+    width: 98vw;
+    min-width: 0;
+    max-width: 99vw;
+    font-size: 14px;
+    padding: 12px 4px 8px 4px;
+  }
+  .rules-modal pre {
+    font-size: 13px;
+    white-space: pre-wrap;
+    word-break: break-word;
+    overflow-x: auto;
+  }
+  .room-card {
+    padding: 10px;
+    font-size: 14px;
+  }
+  .room-info h3 {
+    font-size: 1.1em;
+  }
+  .room-details span {
+    font-size: 0.95em;
   }
 }
 

@@ -3,6 +3,19 @@ import { useNavigate } from "react-router-dom";
 import { QRCodeBox } from "../components/QRCode";
 import "./LobbyPage.css";
 
+const RULES = [
+  {
+    title: "Oyun Kuralları",
+    content: `\
+1. Oyun, köylüler ve vampirler arasında geçer.\n2. Her oyuncunun bir rolü vardır.\n3. Gündüzleri oyuncular tartışır ve oylama ile birini suçlar.\n4. Geceleri özel roller (vampir, kahin, cadı, avcı) aksiyon alır.\n5. Köylüler tüm vampirleri bulursa kazanır. Vampirler çoğunluk olursa kazanır.`
+  },
+  {
+    title: "Roller",
+  content: `\
+Vampir: Her gece birini öldürmeye çalışır. Eğer gece avcıya saldırırsa vampir kaybeder.\nKöylü: Vampirleri bulmaya çalışır.\nKahin: Sadece bir kez, bir oyuncunun rolünü öğrenebilir.\nCadı: Sadece bir kez, bir oyuncuyu zehirleyebilir.\nAvcı: Birini koruyabilir veya avlayabilir.`
+  }
+];
+
 export default function LobbyPage() {
   const navigate = useNavigate();
   const [rooms, setRooms] = useState([]);
@@ -10,6 +23,8 @@ export default function LobbyPage() {
   const [error, setError] = useState("");
   const token = localStorage.getItem("token");
   const [joinKeys, setJoinKeys] = useState({}); // roomId -> key mapping
+  const [showRules, setShowRules] = useState(false);
+  const [showQR, setShowQR] = useState(false);
   const BASE_URL = process.env.REACT_APP_API_URL;
 
   const phaseTranslations = {
@@ -28,7 +43,6 @@ export default function LobbyPage() {
       const res = await fetch(`${BASE_URL}/api/rooms`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-
       if (!res.ok) throw new Error("Oda listesi alınamadı");
       const data = await res.json();
       setRooms(data);
@@ -44,7 +58,6 @@ export default function LobbyPage() {
       navigate("/login");
       return;
     }
-
     fetchRooms();
     const interval = setInterval(fetchRooms, 5000);
     return () => clearInterval(interval);
@@ -52,7 +65,6 @@ export default function LobbyPage() {
 
   const handleDeleteRoom = async (roomId) => {
     if (!window.confirm("Odayı silmek istediğine emin misin?")) return;
-
     try {
       const res = await fetch(`${BASE_URL}/api/rooms/${roomId}`, {
         method: "DELETE",
@@ -109,6 +121,18 @@ export default function LobbyPage() {
     <div className="lobby-container">
       <div className="lobby-background">
         <div className="lobby-card">
+          {/* Oyun Kuralları ve QR Kod Butonları (sadece header altında) */}
+          {showQR && (
+            <div className="rules-modal-overlay" onClick={() => setShowQR(false)}>
+              <div className="rules-modal" onClick={e => e.stopPropagation()}>
+                <button className="close-btn" onClick={() => setShowQR(false)}>
+                  ✖
+                </button>
+                <h3 style={{ marginBottom: 10 }}>Giriş QR Kodu</h3>
+                <QRCodeBox url={`${window.location.origin}/login`} />
+              </div>
+            </div>
+          )}
           <div className="lobby-header">
             <div className="header-title">
               <h1>🧛‍♂️ Vampire Village</h1>
@@ -118,6 +142,33 @@ export default function LobbyPage() {
               👤 {localStorage.getItem("username")} - Çıkış Yap
             </button>
           </div>
+
+          {/* Kurallar ve QR Kod Butonları */}
+          <div style={{ textAlign: "right", marginBottom: 10, display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
+            <button className="rules-btn" onClick={() => setShowRules(true)}>
+              📜 Oyun Kuralları
+            </button>
+            <button className="rules-btn" onClick={() => setShowQR(true)}>
+              📱 Giriş QR Kodu
+            </button>
+          </div>
+
+          {/* Kurallar Modalı */}
+          {showRules && (
+            <div className="rules-modal-overlay" onClick={() => setShowRules(false)}>
+              <div className="rules-modal" onClick={e => e.stopPropagation()}>
+                <button className="close-btn" onClick={() => setShowRules(false)}>
+                  ✖
+                </button>
+                {RULES.map((rule, idx) => (
+                  <div key={idx} style={{ marginBottom: 18 }}>
+                    <h3 style={{ marginBottom: 6 }}>{rule.title}</h3>
+                    <pre style={{ background: '#f8f8f8', padding: 10, borderRadius: 6, fontSize: 14 }}>{rule.content}</pre>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
 
           {error && <div className="error-message">❌ {error}</div>}
 
@@ -130,7 +181,6 @@ export default function LobbyPage() {
             ) : (
               <div className="rooms-list">
                 {rooms.map((room) => {
-                  const gameUrl = `${window.location.origin}`;
                   return (
                     <div key={room.id} className="room-card">
                       <div className="room-info">
@@ -147,7 +197,6 @@ export default function LobbyPage() {
                           </span>
                         </div>
                       </div>
-                      <QRCodeBox url={gameUrl} />
                       <div className="room-actions">
                         {room.joinKey && (
                           <input
