@@ -123,7 +123,7 @@ export default function GamePage() {
 
   useEffect(() => {
     if (!token) {
-      navigate("/login");
+      navigate("/");
       return;
     }
 

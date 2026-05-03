@@ -24,7 +24,7 @@ export default function RegisterPage() {
 
       if (res.ok) {
         setSuccess("Kayıt başarılı! Giriş sayfasına yönlendiriliyorsunuz...");
-        setTimeout(() => navigate("/login"), 1500);
+        setTimeout(() => navigate("/"), 1500);
       } else {
         const error = await res.json();
         setError(error.message || "Kayıt başarısız.");
@@ -78,7 +78,7 @@ export default function RegisterPage() {
           <div className="register-footer">
             <p>
               Zaten hesabınız var mı?
-              <Link to="/login" className="login-link">
+              <Link to="/" className="login-link">
                 Giriş Yapın
               </Link>
             </p>

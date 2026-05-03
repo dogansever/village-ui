@@ -55,7 +55,7 @@ export default function LobbyPage() {
 
   useEffect(() => {
     if (!token) {
-      navigate("/login");
+      navigate("/");
       return;
     }
     fetchRooms();
@@ -105,7 +105,7 @@ export default function LobbyPage() {
 
   const handleLogout = () => {
     localStorage.removeItem("token");
-    navigate("/login");
+    navigate("/");
   };
 
   if (loading)
