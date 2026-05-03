@@ -129,7 +129,7 @@ export default function LobbyPage() {
                   ✖
                 </button>
                 <h3 style={{ marginBottom: 10 }}>Giriş QR Kodu</h3>
-                <QRCodeBox url={`${window.location.origin}/login`} />
+                <QRCodeBox url={`${window.location.origin}`} />
               </div>
             </div>
           )}
